@@ -45,28 +45,96 @@ pub struct LinkedList<T: PartialEq + PartialOrd + Clone + Debug> {
 }
 
 impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
+    /// Creates a new linked list, given some head.
+    /// `head` will define what type, `T`, the list will hold.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::LinkedList;
+    /// #
+    /// let list = LinkedList::new(123_i64);
+    ///
+    /// assert!(list.head().is_some());
+    /// ```
     pub fn new(head: T) -> Self {
         Self {
             head: Some(Node::new(head)),
         }
     }
 
+    /// Changes `head` to be another node.
+    ///
+    /// WARNING: this drops ALL other nodes unless you manually save the rest
+    /// of the list.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::{LinkedList, Node};
+    /// # t().unwrap();
+    /// #
+    /// # fn t() -> Option<()> {
+    /// let mut list = LinkedList::new("old head");
+    /// list.set_head(Node::new("new head"));
+    ///
+    /// assert_eq!(list.head()?.data(), "new head");
+    /// # Some(())
+    /// # }
+    /// ```
     pub fn set_head(&mut self, head: Node<T>) {
         self.head = Some(head);
     }
 
-    pub fn head(&self) -> Option<Node<T>> {
-        self.head.clone()
-    }
-
+    /// Returns the current head node of the list.
     ///
     /// ```
+    /// # use data_structures::linked_list::LinkedList;
+    /// # t().unwrap();
+    /// #
+    /// # fn t() -> Option<()> {
+    /// let list = LinkedList::new("hi");
+    ///
+    /// assert_eq!(list.head()?.data(), "hi");
+    /// # Some(()) }
+    /// ```
+    pub fn head(&self) -> &Option<Node<T>> {
+        &self.head
+    }
+
+    /// Return the node at the given position, if that position is valid.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::LinkedList;
+    /// # t().unwrap();
+    /// #
+    /// # fn t() -> Option<()> {
+    /// let list = LinkedList::new(0)
+    ///     .to_add(1)
+    ///     .to_add(2)
+    ///     .to_add(3);
+    ///
+    /// assert_eq!(list.at(4)?.data, 3);
+    /// # Some(()) }
     /// ```
     fn at(&self, position: usize) -> Option<Node<T>> {
         // TODO
         None
     }
 
+    /// Returns the tail node, if such a node exists.
+    /// Please note that head can also be tail!
+    ///
+    /// ```
+    /// # use data_structures::linked_list::LinkedList;
+    /// # t().unwrap();
+    /// #
+    /// # fn t() -> Option<()> {
+    /// let mut list = LinkedList::new(0_usize);
+    /// for i in 1..=5 {
+    ///     list.push(i);
+    /// }
+    ///
+    /// assert_eq!(list.tail()?.data(), 5);
+    /// # Some(())
+    /// # }
+    /// ```
     pub fn tail(&self) -> Option<Node<T>> {
         let mut node = &self.head.clone()?;
 
@@ -84,7 +152,7 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
     /// #
     /// let mut list = LinkedList::new(0_u8);
     /// for _ in 0..99 {
-    ///     list.append(0_u8);
+    ///     list.push(0_u8);
     /// }
     ///
     /// assert_eq!(list.len(), 100);
@@ -106,8 +174,20 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
         }
     }
 
+    /// Checks to see if the linked list is empty.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::LinkedList;
+    /// #
+    /// let mut list = LinkedList::new("farts")
+    ///     .to_push("one")
+    ///     .to_push("two")
+    ///     .to_push("three");
+    ///
+    /// assert!(!list.is_empty());
+    /// ```
     pub fn is_empty(&self) -> bool {
-        self.len() == 0
+        self.head.is_none()
     }
 
     /// Returns the first node in the list to have the given key.
@@ -115,11 +195,11 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
     /// # use data_structures::linked_list::LinkedList;
     /// #
     /// let list = LinkedList::new(0_u8)
-    ///     .to_append(1_u8)
-    ///     .to_append(2_u8)
-    ///     .to_append(3_u8)
+    ///     .to_push(1_u8)
+    ///     .to_push(2_u8)
+    ///     .to_push(3_u8)
     ///     // etc...
-    ///     .to_append(50_u8);
+    ///     .to_push(50_u8);
     ///
     /// assert!(list.get(50_u8).is_some());
     /// ```
@@ -144,9 +224,20 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
         }
     }
 
-    /// Appends a new node to the back of the list.
+    /// Adds a new node to the back of the list.
+
+    /// ```
+    /// # use data_structures::linked_list::LinkedList;
+    /// #
+    /// let mut list = LinkedList::new(0_u8);
+    /// list.push(1_u8);
+    /// list.push(2_u8);
+    /// list.push(3_u8);
     ///
-    pub fn append(&mut self, data: T) {
+    /// let tail = list.tail().unwrap();
+    /// assert_eq!(tail.data(), 3_u8);
+    /// ```
+    pub fn push(&mut self, data: T) {
         if let Some(ref mut h) = self.head {
             let mut current_node = h;
 
@@ -163,21 +254,22 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
         }
     }
 
-    /// Appends a new node to the back of the list, consuming self.
+    /// Adds a new node to the back of the list, consuming self.
     /// Good for builder-like notation.
+    ///
     /// ```
     /// # use data_structures::linked_list::LinkedList;
     /// #
     /// let list = LinkedList::new(0_u8)
-    ///     .to_append(1_u8)
-    ///     .to_append(2_u8)
-    ///     .to_append(3_u8);
+    ///     .to_push(1_u8)
+    ///     .to_push(2_u8)
+    ///     .to_push(3_u8);
     ///
     /// let tail = list.tail().unwrap();
     /// assert_eq!(tail.data(), 3_u8);
     /// ```
-    pub fn to_append(mut self, data: T) -> Self {
-        self.append(data);
+    pub fn to_push(mut self, data: T) -> Self {
+        self.push(data);
         self
     }
 
@@ -186,9 +278,19 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
     /// ```
     /// # use data_structures::linked_list::LinkedList;
     /// #
-    /// let mut list = LinkedList::new(0_u8);
+    /// # fn main() -> anyhow::Result<()> {
+    /// let mut list = LinkedList::new("first");
     ///
-    /// list.insert(29, 1);
+    /// list.insert("second", 1)?;
+    ///
+    /// list.insert("third", 2)?;
+    /// list.insert("fourth", 1)?;
+    /// assert!(list.insert("wrong", 8).is_err());
+    /// assert!(list.insert("also wrong", 5).is_err());
+    /// list.insert("fifth", 4)?;
+    ///
+    /// let v = list.
+    /// # Ok(()) }
     /// ```
     pub fn insert(&mut self, data: T, position: usize) -> Result<(), LinkedListError> {
         const ERR: LinkedListError = LinkedListError::ElementInsertionOffTheList;
@@ -223,6 +325,21 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
         Ok(())
     }
 
+    /// Inserts an element at a given position, consuming self.
+    /// Good for builder-like notation.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::LinkedList;
+    /// #
+    /// # fn main() -> anyhow::Result<()> {
+    /// let mut list = LinkedList::new("first")
+    ///     .to_insert("second", 0)?
+    ///     .to_insert("third", 2)?;
+    ///
+    /// assert!(list.to_insert("fourth", 4).is_err());
+    /// # // TODO: use `.to_vec()` here in an `assert!()` when we get it!
+    /// # Ok(()) }
+    /// ```
     pub fn to_insert(mut self, data: T, position: usize) -> Result<Self, LinkedListError> {
         self.insert(data, position)?;
         Ok(self)
@@ -234,9 +351,9 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
     /// # use data_structures::linked_list::LinkedList;
     /// #
     /// let mut list = LinkedList::new(23_u8)
-    ///     .to_append(0_u8)
-    ///     .to_append(0_u8)
-    ///     .to_append(0_u8);
+    ///     .to_push(0_u8)
+    ///     .to_push(0_u8)
+    ///     .to_push(0_u8);
     ///
     /// list.clear();
     ///
@@ -266,6 +383,6 @@ mod tests {
         list.insert(23_u8, 0).unwrap();
         list.insert(99_u8, 0).unwrap();
 
-        assert_eq!(list.head().unwrap().data(), 4_u8);
+        assert_eq!(list.head().to_owned().unwrap().data(), 99_u8);
     }
 }

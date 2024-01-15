@@ -2,5 +2,5 @@
 //!
 //! A Rusty implementation of a binary tree.
 
-#[cfg(tests)]
+#[cfg(test)]
 mod tests {}
