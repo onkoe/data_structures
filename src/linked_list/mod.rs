@@ -61,6 +61,19 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
         }
     }
 
+    /// Creates an empty linked list.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::LinkedList;
+    /// #
+    /// let list = LinkedList::<i32>::new_empty();
+    ///
+    /// assert_eq!(list.len(), 0);
+    /// ```
+    pub fn new_empty() -> Self {
+        Self { head: None }
+    }
+
     /// Changes `head` to be another node.
     ///
     /// WARNING: this drops ALL other nodes unless you manually save the rest
