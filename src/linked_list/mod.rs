@@ -677,6 +677,36 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
     pub fn remove(&mut self) -> Result<(), LinkedListError> {
         todo!()
     }
+
+    /// Pops the last node off the list, returning it. This removes it entirely.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::LinkedList;
+    /// #
+    /// let mut list = LinkedList::new(0_u32)
+    ///     .to_push(1_u32)
+    ///     .to_push(2_u32)
+    ///     .to_push(3_u32);
+    ///
+    /// assert_eq!(list.pop().unwrap().data(), 3);
+    /// assert_eq!(list.tail().unwrap().data(), 2); // bc old tail is gone
+    /// ```
+    pub fn pop(&mut self) -> Option<Node<T>> {
+        if self.is_empty() {
+            return None;
+        }
+
+        let len = self.len();
+
+        if len == 1 {
+            return self.head.take();
+        }
+
+        let before_tail = self.at_ref_mut(len - 2)?;
+        let tail = before_tail.next.clone().map(|n| *n);
+        before_tail.next = None;
+        tail
+    }
 }
 
 // TODO: impl those #[derive]s so T doesn't have to have them
