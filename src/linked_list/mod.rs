@@ -1,7 +1,6 @@
 //! # Linked List
 
 use core::fmt::Debug;
-use std::{borrow::BorrowMut, ops::DerefMut};
 use thiserror::Error;
 
 pub mod iter;
@@ -13,7 +12,11 @@ pub mod iter;
 #[derive(Debug, Error)]
 pub enum LinkedListError {
     #[error("New elements can only be inserted up to `len + 1` elements off the list.")]
-    ElementInsertionOffTheList,
+    InsertOutOfBounds,
+    #[error("Non-existent elements cannot be removed.")]
+    DoesNotExist,
+    #[error("Cannot get elements from an empty list.")]
+    EmptyList,
 }
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
@@ -655,7 +658,6 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
     pub fn clear(&mut self) {
         self.head = None;
     }
-}
 
     /// Creates an iterator over the elements of the list.
     pub fn iter(&self) -> iter::LinkedListIterator<T> {
@@ -706,6 +708,38 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
         let tail = before_tail.next.clone().map(|n| *n);
         before_tail.next = None;
         tail
+    }
+
+    /// Creates a `Vec` of the contained type, `T`. Consumes `self`.
+    pub fn into_vec(mut self) -> Vec<T> {
+        let mut vec = Vec::<T>::new();
+
+        while let Some(node) = self.pop() {
+            vec.push(node.data);
+        }
+
+        vec
+    }
+
+    /// Creates a `Vec` of the contained `Node`s. Consumes `self`.
+    pub fn into_node_vec(mut self) -> Vec<Node<T>> {
+        let mut vec = Vec::<Node<T>>::new();
+
+        while let Some(node) = self.pop() {
+            vec.push(node);
+        }
+
+        vec
+    }
+
+    /// Creates a `Vec` of the contained type, `T`.
+    pub fn to_vec(&mut self) -> Vec<T> {
+        self.clone().into_vec()
+    }
+
+    /// Creates a `Vec` of the contained `Node`s.
+    pub fn to_node_vec(&mut self) -> Vec<Node<T>> {
+        self.clone().into_node_vec()
     }
 }
 
