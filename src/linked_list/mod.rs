@@ -488,6 +488,31 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
         }
     }
 
+    /// Updates an existing node's data, if that node exists.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::{LinkedList, Node};
+    /// #
+    /// let mut list = LinkedList::new(0_u32)
+    ///     .to_push(1_u32)
+    ///     .to_push(2_u32)
+    ///     .to_push(3_u32)
+    ///     .to_push(4_u32)
+    ///     .to_push(5_u32);
+    ///
+    /// list.set(1, 44);
+    ///
+    /// assert_eq!(list.at(1).unwrap().data(), 44_u32);
+    /// ```
+    pub fn set(&mut self, position: usize, data: T) -> Result<(), LinkedListError> {
+        let selected = self
+            .at_ref_mut(position)
+            .ok_or(LinkedListError::InsertOutOfBounds)?;
+
+        selected.set_data(data);
+        Ok(())
+    }
+
     /// Adds a new node to the back of the list.
 
     /// ```
