@@ -277,9 +277,70 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
     /// assert_eq!(list.at(3)?.data(), 3);
     /// # Some(()) }
     /// ```
-    fn at(&self, position: usize) -> Option<Node<T>> {
-        // TODO
-        None
+    pub fn at(&self, position: usize) -> Option<Node<T>> {
+        self.iter_nodes().nth(position).map(|n| n.to_owned())
+    }
+
+    /// Returns an immutable reference to the node at the given location, if
+    /// that position is valid.
+    ///
+    /// Mutable operations are disallowed until the given reference is dropped.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::LinkedList;
+    /// # t().unwrap();
+    /// #
+    /// # fn t() -> Option<()> {
+    /// let mut list = LinkedList::new(0)
+    ///     .to_push(1)
+    ///     .to_push(2)
+    ///     .to_push(3);
+    ///
+    /// let x = list.at_ref(2)?;
+    /// // list.push(4); // this wouldn't work until x falls out of scope!
+    ///
+    /// assert_eq!(x.data(), 2);
+    /// # Some(()) }
+    pub fn at_ref(&self, position: usize) -> Option<&Node<T>> {
+        let mut current = self.head.as_ref()?;
+
+        for _ in 0..position {
+            current = current.next.as_ref()?;
+        }
+
+        Some(current)
+    }
+
+    /// Returns a mutable reference to the node at the given position, if that
+    /// position is valid.
+    ///
+    /// Keep in mind that the list is inaccessible until the reference is
+    /// dropped.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::LinkedList;
+    /// # t().unwrap();
+    /// #
+    /// # fn t() -> Option<()> {
+    /// let mut list = LinkedList::new(0)
+    ///     .to_push(1)
+    ///     .to_push(2)
+    ///     .to_push(3);
+    ///
+    /// let x = list.at_ref_mut(2)?; // x is borrowing `list` - we can't use it yet
+    /// x.set_data(22);
+    ///
+    /// assert_eq!(x.data(), 22); // x is out of scope. we can use `list` again!
+    /// assert_eq!(list.at(2)?.data(), 22);
+    /// # Some(()) }
+    pub fn at_ref_mut(&mut self, position: usize) -> Option<&mut Node<T>> {
+        let mut current = self.head.as_mut()?;
+
+        for _ in 0..position {
+            current = current.next.as_mut()?;
+        }
+
+        Some(current)
     }
 
     /// Returns the tail node, if such a node exists.
