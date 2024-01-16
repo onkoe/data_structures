@@ -27,6 +27,14 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> Node<T> {
     }
 
     /// Clones out the data from the node.
+    /// ```
+    /// # use data_structures::linked_list::Node;
+    /// #
+    /// let node = Node::new(7_usize);
+    /// let seven = node.data();
+    ///
+    /// assert_eq!(seven, 7_usize);
+    /// ```
     pub fn data(&self) -> T {
         self.data.to_owned()
     }
@@ -37,18 +45,54 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> Node<T> {
     }
 
     /// Sets a node's child to be the given `Node`.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::Node;
+    /// #
+    ///  let mut parent = Node::new(1_i32);
+    ///  let child = Node::new(2_i32);
+    ///  parent.set_next_node(child);
+    ///
+    /// assert_eq!(parent.next_node().unwrap().data(), 2_i32);
+    /// ```
     pub fn set_next_node(&mut self, node: Node<T>) {
         self.next = Some(Box::new(node));
     }
 
     /// Clones out the next node.
-    pub fn next_node(&mut self) -> Option<Node<T>> {
+    ///
+    /// ```
+    /// # use data_structures::linked_list::Node;
+    /// #
+    ///  let mut parent = Node::new(1_i32);
+    ///  let child = Node::new(2_i32);
+    ///  parent.set_next_node(child);
+    ///
+    ///  let child_new = parent.next_node().unwrap();
+    ///
+    ///  assert_eq!(child_new.data(), 2_i32);
+    ///  assert!(parent.next_node().is_some());
+    /// ```
+    pub fn next_node(&self) -> Option<Node<T>> {
         self.next.to_owned().map(|n| *n)
     }
 
-    /// Steals this node's child, returning it. 
-    /// 
+    /// Steals this node's child, returning it.
+    ///
     /// WARNING: this returns ALL of its child nodes on the list, too!
+    ///
+    /// ```
+    /// # use data_structures::linked_list::Node;
+    /// #
+    ///  let mut parent = Node::new(1_i32);
+    ///  let child = Node::new(2_i32);
+    ///  parent.set_next_node(child);
+    ///
+    ///  let child_new = parent.take_next_node().unwrap();
+    ///
+    ///  assert_eq!(child_new.data(), 2_i32);
+    ///  assert!(parent.next_node().is_none()); // we stole it :3
+    /// ```
     pub fn take_next_node(&mut self) -> Option<Node<T>> {
         // TODO: use self.next.take().map(|next| Box::into_inner(next))
         // (currently waiting on #80437)
@@ -58,25 +102,59 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> Node<T> {
         next
     }
 
-    /// Steals this node from the list, returning it.
-    /// 
-    /// WARNING: this also steals all additional children of this node! 
+    /// Consumes this `Node`, returning it.
+    ///
+    /// WARNING: this also steals all additional children of this node!
+    ///
+    /// ```
+    /// # use data_structures::linked_list::Node;
+    /// #
+    ///  let mut parent = Node::new(1_i32);
+    ///  let child = Node::new(2_i32);
+    ///  parent.set_next_node(child);
+    ///
+    ///  let parent_new = parent.take(); // parent is dropped
+    ///  assert!(parent_new.next_node().is_some()); // we stole it :3
+    /// ```
     pub fn take(self) -> Self {
         self
     }
 
-    /// Transforms this `Node` into a `LinkedList` as its head, consuming the 
-    /// node in the process. 
+    /// Transforms this `Node` into a `LinkedList` as its head, consuming the
+    /// node in the process.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::{LinkedList, Node};
+    /// #
+    /// let mut node = Node::new(0_i32);
+    /// node.set_next_node(Node::new(1_i32));
+    /// let list = node.into_linked_list();
+    ///
+    /// assert_eq!(list.head().as_ref().unwrap().data(), 0_i32);
+    /// assert_eq!(list.tail().as_ref().unwrap().data(), 1_i32);
+    /// ```
     pub fn into_linked_list(self) -> LinkedList<T> {
-        LinkedList {
-            head: Some(self)
-        }
+        LinkedList { head: Some(self) }
     }
 
     /// Creates a new `LinkedList` from the contents of this `Node`, placing it
     /// as the list's head.
-    /// 
+    ///
     /// Doesn't consume the node.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::{LinkedList, Node};
+    /// #
+    /// let mut node = Node::new(0_i32);
+    /// node.set_next_node(Node::new(1_i32));
+    /// let list = &node.to_linked_list();
+    ///
+    /// // our node's still there!
+    /// assert_eq!(node.data(), 0_i32);
+    ///
+    /// assert_eq!(list.head().as_ref().unwrap().data(), 0_i32);
+    /// assert_eq!(list.tail().as_ref().unwrap().data(), 1_i32);
+    /// ```
     pub fn to_linked_list(&self) -> LinkedList<T> {
         self.to_owned().into_linked_list()
     }
