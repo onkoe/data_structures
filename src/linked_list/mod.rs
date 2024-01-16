@@ -24,6 +24,14 @@ pub struct Node<T: PartialEq + PartialOrd + Clone + Debug> {
 
 impl<T: PartialEq + PartialOrd + Clone + Debug> Node<T> {
     /// Creates a new `Node`.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::Node;
+    /// #
+    /// let num = Node::new(13_f32);
+    /// let str = Node::new("im a str!!!");
+    /// let bool = Node::new(false);
+    /// ```
     pub fn new(data: T) -> Self {
         Self { data, next: None }
     }
@@ -42,6 +50,15 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> Node<T> {
     }
 
     /// Replaces a node's data with `data`.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::Node;
+    /// #
+    /// let mut node = Node::new(0_i32);
+    /// node.set_data(1_i32);
+    ///
+    /// assert_eq!(node.data(), 1_i32);
+    /// ```
     pub fn set_data(&mut self, data: T) {
         self.data = data;
     }
