@@ -582,35 +582,39 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
     /// # Ok(()) }
     /// ```
     pub fn insert(&mut self, data: T, position: usize) -> Result<(), LinkedListError> {
-        const ERR: LinkedListError = LinkedListError::ElementInsertionOffTheList;
+        if position == 0 {
+            if self.is_empty() {
+                self.push(data);
+            } else {
+                let head = self
+                    .head_ref_mut()
+                    .ok_or(LinkedListError::InsertOutOfBounds)?;
 
-        // disallow inserts that are off the list
-        if position > self.len() {
-            return Err(ERR);
-        }
-
-        if let Some(ref mut h) = self.head {
-            let mut current_node = h;
-
-            for _ in 0..position {
-                let potential_next = &mut current_node.next;
-
-                let next = potential_next.as_mut().ok_or(ERR)?.deref_mut();
-
-                current_node = next;
+                let head_clone = head.clone();
+                head.set_data(data);
+                head.set_next_node(head_clone);
             }
 
-            // we're at the insertion point. let 'er rip
-            let mut new_node = Node::new(data);
-
-            if let Some(next) = current_node.next_node() {
-                new_node.set_next_node(next);
-            }
-
-            current_node.set_next_node(new_node);
-        } else {
-            return Err(ERR);
+            return Ok(());
         }
+
+        let previous = self
+            .at_ref_mut(position - 1)
+            .ok_or(LinkedListError::InsertOutOfBounds)?;
+
+        let current = &mut previous.next;
+
+        match current {
+            Some(ref mut node) => {
+                let cloned_current = node.clone();
+                node.data = data;
+                node.next = Some(cloned_current);
+            }
+            None => {
+                previous.set_next_node(Node::new(data));
+            }
+        }
+
         Ok(())
     }
 
