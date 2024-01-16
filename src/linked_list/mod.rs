@@ -370,6 +370,45 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
         Some(node.clone())
     }
 
+    /// Returns an immutable reference to the final node in the list, if it exists.
+    /// Please note that tail can also be head.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::LinkedList;
+    /// #
+    /// let mut list = LinkedList::new(0_u32)
+    ///     .to_push(1_u32)
+    ///     .to_push(2_u32)
+    ///     .to_push(3_u32);
+    ///
+    /// assert_eq!(list.tail_ref().unwrap().data(), 3);
+    /// assert_eq!(list.tail().unwrap().data(), 3);
+    /// ```
+    pub fn tail_ref(&self) -> Option<&Node<T>> {
+        self.at_ref(self.len() - 1)
+    }
+
+    /// Returns a mutable reference to the final node in the list, if it exists.
+    /// Please note that tail can also be head.
+    ///
+    /// ```
+    /// # use data_structures::linked_list::LinkedList;
+    /// #
+    /// let mut list = LinkedList::new(0_u32)
+    ///     .to_push(1_u32)
+    ///     .to_push(2_u32)
+    ///     .to_push(3_u32);
+    ///
+    /// let mut t = list.tail_ref_mut().unwrap();
+    /// t.set_data(33_u32);
+    ///
+    /// assert_eq!(t.data(), 33);
+    /// assert_eq!(list.tail().unwrap().data(), 33);
+    /// ```
+    pub fn tail_ref_mut(&mut self) -> Option<&mut Node<T>> {
+        self.at_ref_mut(self.len() - 1)
+    }
+
     /// Returns the length of the linked list, counting head.
     ///
     /// ```
