@@ -228,7 +228,7 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
     /// let mut list = LinkedList::new("old head");
     /// list.set_head(Node::new("new head"));
     ///
-    /// assert_eq!(list.head()?.data(), "new head");
+    /// assert_eq!(list.head().to_owned()?.data(), "new head");
     /// # Some(())
     /// # }
     /// ```
@@ -248,8 +248,18 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
     /// assert_eq!(list.head()?.data(), "hi");
     /// # Some(()) }
     /// ```
-    pub fn head(&self) -> &Option<Node<T>> {
-        &self.head
+    pub fn head(&self) -> Option<Node<T>> {
+        self.head.to_owned()
+    }
+
+    /// Returns a immutable reference to the list's head node.
+    pub fn head_ref(&self) -> Option<&Node<T>> {
+        self.head.as_ref()
+    }
+
+    /// Returns a mutable reference to the list's head node.
+    pub fn head_ref_mut(&mut self) -> Option<&mut Node<T>> {
+        self.head.as_mut()
     }
 
     /// Return the node at the given position, if that position is valid.
@@ -260,11 +270,11 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
     /// #
     /// # fn t() -> Option<()> {
     /// let list = LinkedList::new(0)
-    ///     .to_add(1)
-    ///     .to_add(2)
-    ///     .to_add(3);
+    ///     .to_push(1)
+    ///     .to_push(2)
+    ///     .to_push(3);
     ///
-    /// assert_eq!(list.at(4)?.data, 3);
+    /// assert_eq!(list.at(3)?.data(), 3);
     /// # Some(()) }
     /// ```
     fn at(&self, position: usize) -> Option<Node<T>> {
@@ -443,7 +453,7 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
     /// assert!(list.insert("also wrong", 5).is_err());
     /// list.insert("fifth", 4)?;
     ///
-    /// let v = list.
+    /// assert_eq!(list.at(1).unwrap().data(), "fourth");
     /// # Ok(()) }
     /// ```
     pub fn insert(&mut self, data: T, position: usize) -> Result<(), LinkedListError> {
