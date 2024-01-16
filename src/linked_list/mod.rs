@@ -45,6 +45,40 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> Node<T> {
     pub fn next_node(&mut self) -> Option<Node<T>> {
         self.next.to_owned().map(|n| *n)
     }
+
+    /// Steals this node's child, returning it. 
+    /// 
+    /// WARNING: this returns ALL of its child nodes on the list, too!
+    pub fn take_next_node(&mut self) -> Option<Node<T>> {
+        // TODO: use self.next.take().map(|next| Box::into_inner(next))
+        // (currently waiting on #80437)
+
+        let next = self.next.take().map(|next| *next);
+        self.next = None;
+        next
+    }
+
+    /// Steals this node from the list, returning it.
+    /// 
+    /// WARNING: this also steals all additional children of this node! 
+    pub fn take(self) -> Self {
+        self
+    }
+
+    /// Transforms this `Node` into a `LinkedList` as its head, consuming the 
+    /// node in the process. 
+    pub fn into_linked_list(self) -> LinkedList<T> {
+        LinkedList {
+            head: Some(self)
+        }
+    }
+
+    /// Creates a new `LinkedList` from the contents of this `Node`, placing it
+    /// as the list's head.
+    /// 
+    /// Doesn't consume the node.
+    pub fn to_linked_list(&self) -> LinkedList<T> {
+        self.to_owned().into_linked_list()
     }
 }
 
