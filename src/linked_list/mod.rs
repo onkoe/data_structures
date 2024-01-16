@@ -4,6 +4,8 @@ use core::fmt::Debug;
 use std::{borrow::BorrowMut, ops::DerefMut};
 use thiserror::Error;
 
+pub mod iter;
+
 // TODO: do the much easier array implementation
 // TODO: then, do the raw pointer unsafe nonsense
 // TODO: finally, the interior mutability option. kinda like Box but also, no
@@ -499,18 +501,35 @@ impl<T: PartialEq + PartialOrd + Clone + Debug> LinkedList<T> {
     }
 }
 
-// TODO
-impl<T: PartialEq + PartialOrd + Clone + Debug> Iterator for LinkedList<T> {
-    type Item = Node<T>;
+    /// Creates an iterator over the elements of the list.
+    pub fn iter(&self) -> iter::LinkedListIterator<T> {
+        iter::LinkedListIterator {
+            list: self,
+            current: self.head.as_ref(),
+        }
+    }
 
-    fn next(&mut self) -> Option<Self::Item> {
+    // Creates an iterator over the `Node`s of the list.
+    pub fn iter_nodes(&self) -> iter::LinkedListNodeIterator<T> {
+        iter::LinkedListNodeIterator {
+            list: self,
+            current: self.head_ref(),
+        }
+    }
+
+    /// Removes a node from the list.
+    pub fn remove(&mut self) -> Result<(), LinkedListError> {
         todo!()
     }
 }
 
+// TODO: impl those #[derive]s so T doesn't have to have them
+// ex. implement Debug only for <T: Debug>, etc.
+
 #[cfg(test)]
 mod tests {
     use super::LinkedList;
+    // use debug_print::debug_println;
 
     #[test]
     fn insert_at_head() {
