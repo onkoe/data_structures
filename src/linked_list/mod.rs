@@ -4,6 +4,10 @@ use core::fmt::Debug;
 use std::{borrow::BorrowMut, ops::DerefMut};
 use thiserror::Error;
 
+// TODO: do the much easier array implementation
+// TODO: then, do the raw pointer unsafe nonsense
+// TODO: finally, the interior mutability option. kinda like Box but also, no
+
 #[derive(Debug, Error)]
 pub enum LinkedListError {
     #[error("New elements can only be inserted up to `len + 1` elements off the list.")]
@@ -17,24 +21,30 @@ pub struct Node<T: PartialEq + PartialOrd + Clone + Debug> {
 }
 
 impl<T: PartialEq + PartialOrd + Clone + Debug> Node<T> {
+    /// Creates a new `Node`.
     pub fn new(data: T) -> Self {
         Self { data, next: None }
     }
 
+    /// Clones out the data from the node.
     pub fn data(&self) -> T {
-        self.data.clone()
+        self.data.to_owned()
     }
 
+    /// Replaces a node's data with `data`.
     pub fn set_data(&mut self, data: T) {
         self.data = data;
     }
 
+    /// Sets a node's child to be the given `Node`.
     pub fn set_next_node(&mut self, node: Node<T>) {
         self.next = Some(Box::new(node));
     }
 
+    /// Clones out the next node.
     pub fn next_node(&mut self) -> Option<Node<T>> {
-        self.next.clone().map(|n| *n)
+        self.next.to_owned().map(|n| *n)
+    }
     }
 }
 
